@@ -2,57 +2,6 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 const siteUrl = "https://secure-authenticator.vercel.app";
-
-export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
-  title: {
-    default: "Secure Authenticator – Free Online TOTP Authenticator",
-    template: "%s | Secure Authenticator",
-  },
-  description:
-    "Generate secure TOTP 2FA verification codes directly in your browser. Fast, private and easy to use for compatible authenticator secrets.",
-  keywords: [
-    "TOTP authenticator",
-    "online authenticator",
-    "2FA authenticator",
-    "OTP generator",
-    "TOTP code generator",
-    "two factor authentication",
-  ],
-  alternates: { canonical: "/" },
-  robots: { index: true, follow: true },
-  openGraph: {
-    type: "website",
-    url: siteUrl,
-    title: "Secure Authenticator – Free Online TOTP Authenticator",
-    description: "Generate TOTP 2FA verification codes directly in your browser.",
-    siteName: "Secure Authenticator",
-  },
-  twitter: {
-    card: "summary",
-    title: "Secure Authenticator – Free Online TOTP Authenticator",
-    description: "Generate TOTP 2FA verification codes directly in your browser.",
-  },
-};
-
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "WebApplication",
-  name: "Secure Authenticator",
-  url: siteUrl,
-  description: "Free browser-based TOTP authenticator for generating 2FA verification codes.",
-  applicationCategory: "SecurityApplication",
-  operatingSystem: "Any",
-  offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
-};
-
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return (
-    <html lang="en">
-      <head>
-        <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
-      </head>
-      <body>{children}</body>
-    </html>
-  );
-}
+export const metadata: Metadata = { metadataBase:new URL(siteUrl), title:{default:"Secure Authenticator – Free Online TOTP Authenticator",template:"%s | Secure Authenticator"}, description:"Generate secure TOTP 2FA verification codes directly in your browser. Fast, private and easy to use.", keywords:["TOTP authenticator","online authenticator","2FA authenticator","OTP generator","TOTP code generator"], alternates:{canonical:"/"}, robots:{index:true,follow:true}, manifest:"/manifest.webmanifest", icons:{icon:"/icon.svg",apple:"/icon.svg"}, themeColor:"#172033", openGraph:{type:"website",url:siteUrl,title:"Secure Authenticator – Free Online TOTP Authenticator",description:"Generate TOTP 2FA verification codes directly in your browser.",siteName:"Secure Authenticator"}, twitter:{card:"summary",title:"Secure Authenticator",description:"Private browser-based TOTP authenticator."} };
+const jsonLd={"@context":"https://schema.org","@type":"WebApplication",name:"Secure Authenticator",url:siteUrl,description:"Free browser-based TOTP authenticator for generating 2FA verification codes.",applicationCategory:"SecurityApplication",operatingSystem:"Any",offers:{"@type":"Offer",price:"0",priceCurrency:"USD"}};
+export default function RootLayout({children}:{children:React.ReactNode}){return <html lang="en"><head><script type="application/ld+json">{JSON.stringify(jsonLd)}</script></head><body>{children}</body></html>}
