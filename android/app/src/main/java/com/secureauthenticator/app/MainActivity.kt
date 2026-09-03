@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.webkit.CookieManager
+import android.webkit.PermissionRequest
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
@@ -20,6 +21,7 @@ import androidx.webkit.WebViewFeature
 class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
     private var fileCallback: ValueCallback<Array<Uri>>? = null
+    private var pendingCameraRequest: PermissionRequest? = null
     private val appUrl = "https://secure-authenticator.vercel.app/"
     private val appHost = "secure-authenticator.vercel.app"
 
@@ -33,7 +35,12 @@ class MainActivity : AppCompatActivity() {
         callback.onReceiveValue(uris)
     }
 
-    private val cameraPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
+    private val cameraPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        pendingCameraRequest?.let { request ->
+            if (granted) request.grant(arrayOf(PermissionRequest.RESOURCE_VIDEO_CAPTURE)) else request.deny()
+        }
+        pendingCameraRequest = null
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,13 +79,19 @@ class MainActivity : AppCompatActivity() {
         }
 
         webView.webChromeClient = object : WebChromeClient() {
-            override fun onPermissionRequest(request: android.webkit.PermissionRequest) {
+            override fun onPermissionRequest(request: PermissionRequest) {
                 runOnUiThread {
-                    val wantsCamera = request.resources.contains(android.webkit.PermissionRequest.RESOURCE_VIDEO_CAPTURE)
-                    if (wantsCamera && ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    val wantsCamera = request.resources.contains(PermissionRequest.RESOURCE_VIDEO_CAPTURE)
+                    if (!wantsCamera) {
+                        request.deny()
+                        return@runOnUiThread
+                    }
+                    if (ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                        request.grant(arrayOf(PermissionRequest.RESOURCE_VIDEO_CAPTURE))
+                    } else {
+                        pendingCameraRequest?.deny()
+                        pendingCameraRequest = request
                         cameraPermission.launch(Manifest.permission.CAMERA)
-                    } else if (wantsCamera) {
-                        request.grant(arrayOf(android.webkit.PermissionRequest.RESOURCE_VIDEO_CAPTURE))
                     }
                 }
             }
@@ -103,6 +116,7 @@ class MainActivity : AppCompatActivity() {
         if (savedInstanceState == null) webView.loadUrl(appUrl) else webView.restoreState(savedInstanceState)
     }
 
+    @Deprecated("Use OnBackPressedDispatcher for new Android APIs")
     override fun onBackPressed() {
         if (webView.canGoBack()) webView.goBack() else super.onBackPressed()
     }
@@ -113,6 +127,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        pendingCameraRequest?.deny()
+        pendingCameraRequest = null
         fileCallback?.onReceiveValue(null)
         fileCallback = null
         webView.destroy()
