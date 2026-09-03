@@ -1,5 +1,6 @@
 import Authenticator from "./authenticator";
+import PwaShell from "./pwa";
 
 export default function Home() {
-  return <Authenticator />;
+  return <PwaShell><Authenticator /></PwaShell>;
 }
