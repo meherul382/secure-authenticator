@@ -5,3 +5,8 @@ out
 .env.local
 .DS_Store
 *.log
+
+# Android signing material
+*.jks
+*.keystore
+android/app/upload-keystore.jks
